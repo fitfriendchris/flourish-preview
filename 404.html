@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Flourish — Biblical Life Mastery</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#1a3c1a">
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="logo">🌿</span>
+        <span class="title">Flourish</span>
+      </div>
+      <button id="gender-toggle" class="btn-toggle" aria-label="Toggle gender track">
+        <span class="g-label">Men</span>
+        <span class="g-switch"></span>
+        <span class="g-label dim">Women</span>
+      </button>
+    </header>
+
+    <main id="main" class="main-content"></main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-page="devotional" aria-label="Devotional">📖</button>
+      <button class="nav-btn" data-page="progress" aria-label="Progress">📊</button>
+      <button class="nav-btn" data-page="churches" aria-label="Churches">⛪</button>
+      <button class="nav-btn" data-page="events" aria-label="Events">📅</button>
+      <button class="nav-btn" data-page="store" aria-label="Store">🛒</button>
+      <button class="nav-btn" data-page="profile" aria-label="Profile">👤</button>
+    </nav>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
