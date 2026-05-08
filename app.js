@@ -21,18 +21,22 @@
   };
 
   // ==========================================================
-  // DOM UTILS
+  // DOM UTILS (null-safe)
   // ==========================================================
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const html = $('#main');
+  const htmlEl = () => {
+    const el = $('#main');
+    if (!el) console.error('FATAL: #main not found');
+    return el;
+  };
 
   function updateActiveNav(name) {
     $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
   }
 
   // ==========================================================
-  // CURRICULUM LOADING (non-blocking)
+  // CURRICULUM LOADING
   // ==========================================================
   async function loadCurriculum() {
     if (state.loaded) return;
@@ -48,7 +52,6 @@
       state.currentDay = todayIndex();
       loadProgress();
       loadGender();
-      // Kickoff UI
       const page = location.hash.replace('#','') || 'devotional';
       showPage(page);
     } catch(err) {
@@ -59,6 +62,7 @@
   }
 
   function showLoading(msg) {
+    const html = htmlEl(); if (!html) return;
     html.innerHTML = `
       <div class="page centered-message">
         <div class="loader"></div>
@@ -68,11 +72,12 @@
     updateActiveNav('devotional');
   }
   function showError(msg) {
+    const html = htmlEl(); if (!html) return;
     html.innerHTML = `
       <div class="page centered-message">
         <div style="font-size:48px;">📶</div>
         <p class="error-text">${msg}</p>
-        <button class="btn-primary" onclick="location.reload()">Try Again</button>
+        <button class="btn-primary" style="width:auto;min-width:120px;" onclick="location.reload()">Try Again</button>
         <p style="margin-top:12px;color:var(--text-dim);font-size:12px;">Offline mode coming soon</p>
       </div>`;
     updateActiveNav('devotional');
@@ -93,6 +98,7 @@
   function loadGender() {
     const g = localStorage.getItem('flourish-gender');
     if (g) state.gender = g;
+    updateGenderUI();
   }
   function saveGender() {
     try { localStorage.setItem('flourish-gender', state.gender); } catch(e) {}
@@ -101,15 +107,24 @@
   // ==========================================================
   // GENDER TOGGLE
   // ==========================================================
-  $('#gender-toggle').addEventListener('click', () => {
-    state.gender = state.gender === 'men' ? 'women' : 'men';
-    updateGenderUI();
-    saveGender();
-    refreshPage();
-  });
+  const genderToggle = $('#gender-toggle');
+  if (genderToggle) {
+    genderToggle.addEventListener('click', () => {
+      state.gender = state.gender === 'men' ? 'women' : 'men';
+      updateGenderUI();
+      saveGender();
+      refreshPage();
+    });
+  }
+
   function updateGenderUI() {
-    $$('#gender-toggle .g-label').forEach(el => el.classList.toggle('dim', !el.textContent.toLowerCase().includes(state.gender)));
-    $('#gender-toggle').classList.toggle('women', state.gender === 'women');
+    const toggle = $('#gender-toggle');
+    if (!toggle) return;
+    toggle.classList.toggle('women', state.gender === 'women');
+    $$('#gender-toggle .g-label').forEach(el => {
+      const isActive = el.textContent.toLowerCase().includes(state.gender);
+      el.classList.toggle('dim', !isActive);
+    });
   }
 
   // ==========================================================
@@ -119,8 +134,8 @@
     updateActiveNav(name);
     location.hash = name;
     if (!state.loaded) {
-      if (name === 'devotional') return; // Loading already shown
-      showError('Curriculum is still loading');
+      if (name === 'devotional') return;
+      showError('Curriculum is still loading. Please wait...');
       return;
     }
     switch(name) {
@@ -139,6 +154,7 @@
     if (state.loaded) showPage(page);
   }
 
+  // Wire nav buttons
   $$('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => showPage(btn.dataset.page));
   });
@@ -148,8 +164,9 @@
   // PAGE: DEVOTIONAL
   // ==========================================================
   function renderDevotional() {
+    const html = htmlEl(); if (!html) return;
     const dayIdx = state.currentDay - 1;
-    const day = state.curriculum[dayIdx];
+    const day = state.curriculum ? state.curriculum[dayIdx] : null;
     if (!day) { html.innerHTML = '<div class="page centered-message">No data for this day.</div>'; return; }
 
     const isComplete = !!state.progress[day.day];
@@ -231,13 +248,14 @@
   // PAGE: PROGRESS
   // ==========================================================
   function renderProgress() {
+    const html = htmlEl(); if (!html) return;
     const completed = Object.keys(state.progress).length;
     const pct = Math.min(100, Math.round((completed / 365) * 100));
     const streak = computeStreak();
 
     const pillarCounts = { Health:0, Wealth:0, Relationships:0, Integration:0 };
     Object.keys(state.progress).forEach(d => {
-      const day = state.curriculum[parseInt(d)-1];
+      const day = state.curriculum ? state.curriculum[parseInt(d)-1] : null;
       if (day && pillarCounts[day.pillar] !== undefined) pillarCounts[day.pillar]++;
     });
 
@@ -275,7 +293,7 @@
         </div>
 
         <div style="height:20px"></div>
-        <button class="btn-danger" onclick="app.resetProgress()" style="width:100%">Reset All Progress</button>
+        <button class="btn-danger" onclick="app.resetProgress()">Reset All Progress</button>
       </div>
     `;
   }
@@ -321,6 +339,7 @@
   // PAGE: CHURCHES
   // ==========================================================
   function renderChurches() {
+    const html = htmlEl(); if (!html) return;
     html.innerHTML = `
       <div class="page">
         <div class="card">
@@ -354,6 +373,7 @@
   // PAGE: EVENTS
   // ==========================================================
   function renderEvents() {
+    const html = htmlEl(); if (!html) return;
     html.innerHTML = `
       <div class="page">
         <div class="card">
@@ -389,6 +409,7 @@
   // PAGE: STORE
   // ==========================================================
   function renderStore() {
+    const html = htmlEl(); if (!html) return;
     html.innerHTML = `
       <div class="page">
         <div class="card">
@@ -421,6 +442,7 @@
   // PAGE: PROFILE
   // ==========================================================
   function renderProfile() {
+    const html = htmlEl(); if (!html) return;
     const completed = Object.keys(state.progress).length;
     const pct = Math.min(100, Math.round((completed / 365) * 100));
     html.innerHTML = `
@@ -475,7 +497,7 @@
       renderDevotional();
     },
     shareDay(day) {
-      const d = state.curriculum[day-1];
+      const d = state.curriculum ? state.curriculum[day-1] : null;
       if (!d) return;
       const text = `Flourish Day ${day}: ${d.scripture?.reference || ''} — "${(d.scripture?.text || '').split(' ').slice(0,8).join(' ')}..."`;
       if (navigator.share) { navigator.share({ title: `Flourish Day ${day}`, text }); }
@@ -491,7 +513,6 @@
   // ==========================================================
   // INIT
   // ==========================================================
-  // Nav buttons are already wired; curriculum loads async with loading screen
   loadCurriculum();
 
   if ('serviceWorker' in navigator) {
