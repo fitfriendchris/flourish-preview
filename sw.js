@@ -1,11 +1,11 @@
-const CACHE_NAME = 'flourish-v1';
-const DATA_CACHE = 'flourish-data-v1';
+const CACHE_NAME = 'flourish-v2';
+const DATA_CACHE = 'flourish-data-v2';
 const SHELL = [
   './',
   './index.html',
   './404.html',
-  './styles.css',
-  './app.js',
+  './flourish-v4.css',
+  './flourish-v4.js',
   './manifest.json'
 ];
 
@@ -52,15 +52,20 @@ self.addEventListener('fetch', function(e) {
     return;
   }
 
+  // Network-first for shell assets (CSS/JS/HTML) so updates propagate quickly
   e.respondWith(
-    caches.match(e.request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(e.request).then(function(res) {
+    fetch(e.request).then(function(res) {
+      if (res.status === 200) {
         var clone = res.clone();
         caches.open(CACHE_NAME).then(function(c) {
-          c.put(e.request, clone);
+          c.put(e.request, clone).catch(function(){});
         });
-        return res;
+      }
+      return res;
+    }).catch(function() {
+      return caches.match(e.request).then(function(cached) {
+        if (cached) return cached;
+        return new Response('Offline', { status: 503 });
       });
     })
   );
