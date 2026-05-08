@@ -760,7 +760,7 @@
     gotoDay(n){
       if(!state.loaded)return;
       state.currentDay=n;
-      showPage('devotional');
+      location.hash = 'devotional';
     },
     showPillar(p){
       location.hash = `pillars?p=${encodeURIComponent(p)}`;
