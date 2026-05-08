@@ -127,17 +127,21 @@
   // ════════════════════════════════════════════
   // NAVIGATION
   // ════════════════════════════════════════════
-  function showPage(name) {
-    if (name === 'devotional' && !state.loaded) { renderLoading(); return; }
-    if (!state.loaded && name !== 'devotional') { renderError('Still planting your seeds...'); return; }
-    updateActiveNav(name);
-    location.hash = name;
+  function showPage() {
+    // Read directly from location.hash to support query params (#pillars?p=Health&w=3)
+    const raw = location.hash.replace('#','') || 'devotional';
+    const page = raw.split('?')[0];
+
+    if (page === 'devotional' && !state.loaded) { renderLoading(); return; }
+    if (!state.loaded && page !== 'devotional') { renderError('Still planting your seeds...'); return; }
+    updateActiveNav(page);
     window.scrollTo(0,0);
-    switch(name) {
+    switch(page) {
       case 'devotional': renderDevotional(); break;
       case 'progress':   renderProgress(); break;
       case 'churches':   renderChurches(); break;
       case 'events':     renderEvents(); break;
+      case 'pillars':    renderPillars(); break;
       case 'store':      renderStore(); break;
       case 'profile':    renderProfile(); break;
       default:           renderDevotional();
@@ -578,6 +582,162 @@
   }
 
   // ════════════════════════════════════════════
+  // PAGE: PILLARS — THE CURRICULUM CATHEDRAL
+  // ════════════════════════════════════════════
+  function renderPillars() {
+    const m = $('#main');
+    const hash = location.hash;
+    const qp = new URLSearchParams(hash.split('?')[1] || '');
+    const p = qp.get('p');
+    const w = qp.get('w');
+
+    if (p && w) { renderWeekDetail(p, parseInt(w)); return; }
+    if (p) { renderPillarDetail(p); return; }
+
+    const pillarMeta = {
+      Health: { icon:'🌿', color:'#5a8f6e', desc:'Spiritual vitality, mental discipline, and physical stewardship as acts of worship.' },
+      Wealth: { icon:'⚜️', color:'#c9a84c', desc:'Biblical stewardship, debt freedom, and generational legacy building.' },
+      Relationships: { icon:'💜', color:'#7a6fae', desc:'Family hierarchy, covenant friendship, and romantic leadership rooted in scripture.' },
+      Integration: { icon:'🔥', color:'#8b5a7c', desc:'Where Health, Wealth, and Relationships converge into unified Kingdom living.' }
+    };
+
+    const counts = { Health:0, Wealth:0, Relationships:0, Integration:0 };
+    state.curriculum?.forEach(d => { if (counts[d.pillar] !== undefined) counts[d.pillar]++; });
+
+    m.innerHTML = `
+      <div class="pillars-page">
+        <div class="page-title card-enter">The Four Pillars</div>
+        <div class="page-subtitle card-enter" style="animation-delay:.05s">
+          A 365-day architecture for Biblical Life Mastery
+        </div>
+        <div class="pillars-grid card-enter" style="animation-delay:.1s">
+          ${Object.entries(pillarMeta).map(([name,meta])=>{
+            const count = counts[name]||0;
+            const cls = name.toLowerCase();
+            return `
+            <div class="pillar-tile ${cls}" onclick="app.showPillar('${name}')">
+              <div class="pillar-tile-icon" style="background:${meta.color}20;color:${meta.color}">${meta.icon}</div>
+              <div class="pillar-tile-name">${esc(name)}</div>
+              <div class="pillar-tile-count">${count} days</div>
+              <div class="pillar-tile-desc">${esc(meta.desc)}</div>
+              <div class="pillar-tile-cta">Enter →</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="card card-enter" style="animation-delay:.2s;margin-top:8px">
+          <div class="card-header"><span class="icon">📖</span> How the Pillars Work</div>
+          <div style="line-height:1.7;font-size:14px;color:var(--text-muted)">
+            Each pillar is not isolated — they <strong>cross-pollinate</strong>. A lesson on Identity (Health)
+            directly impacts how you steward money (Wealth) and lead your family (Relationships).
+            The Integration pillar weaves all three together into unified Kingdom living.
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderPillarDetail(pillar) {
+    const m = $('#main');
+    const meta = {
+      Health: { icon:'🌿', color:'#5a8f6e', title:'The Garden of Health', subtitle:'Spiritual, Mental & Physical Mastery' },
+      Wealth: { icon:'⚜️', color:'#c9a84c', title:'The Treasury of Wealth', subtitle:'Stewardship, Generation & Legacy' },
+      Relationships: { icon:'💜', color:'#7a6fae', title:'The Covenant of Relationships', subtitle:'Family, Friendship & Partnership' },
+      Integration: { icon:'🔥', color:'#8b5a7c', title:'The Furnace of Integration', subtitle:'Unified Kingdom Living' }
+    }[pillar] || { icon:'📖', color:'var(--accent)', title:pillar, subtitle:'Biblical Life Mastery' };
+
+    const weeks = {};
+    state.curriculum?.forEach(d => {
+      if (d.pillar === pillar) {
+        if (!weeks[d.week]) weeks[d.week] = { theme: d.week_theme, days: [] };
+        weeks[d.week].days.push(d);
+      }
+    });
+
+    const sortedWeeks = Object.entries(weeks).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+    const doneInPillar = state.curriculum?.filter(d=>d.pillar===pillar && state.progress[d.day]).length || 0;
+    const totalInPillar = Object.values(weeks).reduce((s,w)=>s+w.days.length,0);
+    const pct = Math.round((doneInPillar/totalInPillar)*100)||0;
+
+    m.innerHTML = `
+      <div class="pillars-page">
+        <div class="pillar-hero card-enter" style="border-color:${meta.color}40">
+          <div class="pillar-hero-icon" style="background:${meta.color}20;color:${meta.color}">${meta.icon}</div>
+          <div class="pillar-hero-title">${esc(meta.title)}</div>
+          <div class="pillar-hero-subtitle">${esc(meta.subtitle)}</div>
+          <div class="pillar-hero-stats">
+            <span>${totalInPillar} days</span> · <span>${doneInPillar} completed</span> · <span style="color:${meta.color}">${pct}%</span>
+          </div>
+        </div>
+        <div class="week-list">
+          ${sortedWeeks.map(([weekNum, wData], i) => {
+            const wDone = wData.days.filter(d=>state.progress[d.day]).length;
+            const wTotal = wData.days.length;
+            const wPct = Math.round((wDone/wTotal)*100);
+            const cls = pillar.toLowerCase();
+            return `
+            <div class="week-card card-enter ${cls}" style="animation-delay:${i*0.04}s" onclick="app.showWeek('${pillar}',${weekNum})">
+              <div class="week-card-header">
+                <div class="week-num">Week ${weekNum}</div>
+                <div class="week-progress">
+                  <div class="week-bar"><div class="week-fill ${cls}" style="width:${wPct}%"></div></div>
+                  <span class="week-pct">${wPct}%</span>
+                </div>
+              </div>
+              <div class="week-theme">${esc(wData.theme)}</div>
+              <div class="week-days-preview">
+                ${wData.days.slice(0,5).map(d=>`<span class="day-dot ${state.progress[d.day]?'done':''} ${d.day===state.currentDay?'today':''}">${d.day}</span>`).join('')}
+                ${wData.days.length>5?'<span class="day-dot more">+'+(wData.days.length-5)+'</span>':''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="height:20px"></div>
+      </div>`;
+  }
+
+  function renderWeekDetail(pillar, week) {
+    const m = $('#main');
+    const days = state.curriculum?.filter(d => d.pillar === pillar && d.week === week) || [];
+    if (!days.length) { m.innerHTML = '<div class="empty-state">No days found.</div>'; return; }
+
+    const weekTheme = days[0]?.week_theme || '';
+    const done = days.filter(d=>state.progress[d.day]).length;
+    const cls = pillar.toLowerCase();
+
+    m.innerHTML = `
+      <div class="pillars-page">
+        <div class="week-detail-header card-enter">
+          <button class="btn-nav-round" onclick="app.showPillar('${pillar}')">◀</button>
+          <div class="week-detail-info">
+            <div class="week-detail-eyebrow">${esc(pillar)} · Week ${week}</div>
+            <div class="week-detail-theme">${esc(weekTheme)}</div>
+            <div class="week-detail-progress">${done}/${days.length} days complete</div>
+          </div>
+        </div>
+        <div class="day-list">
+          ${days.map((d,i) => {
+            const t = d[state.gender];
+            const isDone = !!state.progress[d.day];
+            return `
+            <div class="day-row card-enter ${isDone?'done':''} ${d.day===state.currentDay?'today':''}" style="animation-delay:${i*0.05}s" onclick="app.gotoDay(${d.day})">
+              <div class="day-row-left">
+                <div class="day-row-num ${cls}">${d.day}</div>
+                <div class="day-row-info">
+                  <div class="day-row-topic">${esc(d.topic)}</div>
+                  <div class="day-row-scripture">${esc(d.scripture?.reference)}</div>
+                  <div class="day-row-excerpt">${esc((t?.lesson||'').substring(0,80))}${(t?.lesson||'').length>80?'...':''}</div>
+                </div>
+              </div>
+              <div class="day-row-right">
+                <div class="day-row-status ${isDone?'done':''}">${isDone?'✅':'○'}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="height:20px"></div>
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════
   // UTILS
   // ════════════════════════════════════════════
   function esc(s) {
@@ -602,6 +762,12 @@
       if(!state.loaded)return;
       state.currentDay=n;
       showPage('devotional');
+    },
+    showPillar(p){
+      location.hash = `pillars?p=${encodeURIComponent(p)}`;
+    },
+    showWeek(p,w){
+      location.hash = `pillars?p=${encodeURIComponent(p)}&w=${w}`;
     },
     toggleComplete(day){
       if(!state.loaded)return;
@@ -633,8 +799,8 @@
   });
   $('#theme-toggle')?.addEventListener('click', toggleTheme);
 
-  $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-  window.addEventListener('hashchange',()=>showPage(location.hash.replace('#','')||'devotional'));
+  $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>{ location.hash = b.dataset.page; }));
+  window.addEventListener('hashchange', showPage);
 
   loadCurriculum();
 

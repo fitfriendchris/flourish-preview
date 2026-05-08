@@ -954,3 +954,244 @@ main#main::-webkit-scrollbar-thumb { background:var(--border);border-radius:2px;
   }
   .store-grid { grid-template-columns:repeat(3,1fr); }
 }
+
+/* ═══════ EXPANDABLE ENRICHMENT ═══════ */
+.expandable {
+  margin-bottom:14px;
+}
+.expand-toggle {
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 16px;
+  color:var(--text);font-family:inherit;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .2s;
+  touch-action:manipulation;
+}
+.expand-toggle:hover { background:var(--surface-3); }
+.expand-toggle .toggle-icon { transition:transform .3s; }
+.expand-toggle.open .toggle-icon { transform:rotate(180deg); }
+.expand-body {
+  background:var(--surface);
+  border:1px solid var(--border);border-top:none;
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+  padding:0 16px;max-height:0;overflow:hidden;
+  transition:max-height .4s var(--transition),padding .4s;
+}
+.expand-body.open {
+  padding:14px 16px;
+  max-height:800px;
+}
+.expand-body p { font-size:14px;line-height:1.7;color:var(--text-muted);margin-bottom:10px; }
+.expand-body p:last-child { margin-bottom:0; }
+.expand-body .word-greek { font-style:italic;color:var(--accent);font-weight:600; }
+
+/* ═══════ PAGE: PILLARS ═══════ */
+.pillars-page { padding:0 0 24px; }
+
+.pillars-grid {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-bottom:16px;
+}
+@media(min-width:768px){
+  .pillars-grid { grid-template-columns:repeat(2,1fr); }
+}
+
+.pillar-tile {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .3s;
+  position:relative;
+  overflow:hidden;
+}
+.pillar-tile:hover { transform:translateY(-2px);box-shadow:0 8px 32px var(--accent-glow); }
+.pillar-tile::before {
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:var(--accent);opacity:0;transition:opacity .3s;
+}
+.pillar-tile:hover::before { opacity:1; }
+.pillar-tile.health::before { background:var(--health); }
+.pillar-tile.wealth::before { background:var(--wealth); }
+.pillar-tile.relationships::before { background:var(--relationships); }
+.pillar-tile.integration::before { background:var(--spiritual); }
+
+.pillar-tile-icon {
+  width:48px;height:48px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:12px;
+}
+.pillar-tile-name {
+  font-size:18px;font-weight:700;color:var(--text);
+  margin-bottom:4px;
+}
+.pillar-tile-count {
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--text-dim);margin-bottom:10px;
+}
+.pillar-tile-desc {
+  font-size:13px;line-height:1.6;color:var(--text-muted);
+}
+.pillar-tile-cta {
+  font-size:12px;font-weight:700;
+  color:var(--accent);margin-top:12px;
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+
+/* Pillar hero inside detail */
+.pillar-hero {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:16px;
+  text-align:center;
+}
+.pillar-hero-icon {
+  width:56px;height:56px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 12px;
+}
+.pillar-hero-title {
+  font-size:22px;font-weight:800;color:var(--text);
+  margin-bottom:6px;
+}
+.pillar-hero-subtitle {
+  font-size:13px;color:var(--text-muted);margin-bottom:10px;
+}
+.pillar-hero-stats {
+  font-size:12px;font-weight:600;color:var(--text-dim);
+  letter-spacing:0.05em;
+}
+
+/* Week cards in pillar detail */
+.week-list { display:flex;flex-direction:column;gap:10px; }
+.week-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:16px;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .3s,border-color .2s;
+}
+.week-card:hover { transform:translateX(4px);box-shadow:0 4px 20px var(--accent-glow);border-color:var(--border-light); }
+.week-card.health:hover { border-color:var(--health); }
+.week-card.wealth:hover { border-color:var(--wealth); }
+.week-card.relationships:hover { border-color:var(--relationships); }
+.week-card.integration:hover { border-color:var(--spiritual); }
+
+.week-card-header {
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+.week-num {
+  font-size:14px;font-weight:700;color:var(--text);
+}
+.week-progress {
+  display:flex;align-items:center;gap:8px;
+}
+.week-bar {
+  width:60px;height:6px;
+  background:var(--surface-2);
+  border-radius:3px;overflow:hidden;
+}
+.week-fill {
+  height:100%;border-radius:3px;
+  transition:width .5s var(--transition);
+}
+.week-fill.health { background:var(--health); }
+.week-fill.wealth { background:var(--wealth); }
+.week-fill.relationships { background:var(--relationships); }
+.week-fill.integration { background:var(--spiritual); }
+.week-pct {
+  font-size:11px;font-weight:700;color:var(--accent);
+  min-width:32px;text-align:right;
+}
+.week-theme {
+  font-size:13px;font-weight:500;
+  color:var(--text-muted);line-height:1.5;
+  margin-bottom:10px;
+}
+.week-days-preview {
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.day-dot {
+  width:28px;height:28px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--text-dim);
+  transition:all .2s;
+}
+.day-dot.done {
+  background:var(--success);border-color:var(--success);
+  color:#fff;
+}
+.day-dot.today {
+  box-shadow:0 0 0 2px var(--accent);
+  color:var(--accent);
+}
+.day-dot.more {
+  background:var(--surface-3);border-style:dashed;
+  font-size:9px;
+}
+
+/* Week detail header */
+.week-detail-header {
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  margin-bottom:14px;
+}
+.week-detail-info { flex:1;min-width:0; }
+.week-detail-eyebrow {
+  font-size:10px;font-weight:800;
+  text-transform:uppercase;letter-spacing:0.15em;
+  color:var(--text-dim);margin-bottom:4px;
+}
+.week-detail-theme {
+  font-size:16px;font-weight:700;color:var(--text);line-height:1.4;
+}
+.week-detail-progress {
+  font-size:12px;color:var(--accent);margin-top:6px;font-weight:600;
+}
+
+/* Day rows in week detail */
+.day-list { display:flex;flex-direction:column;gap:8px; }
+.day-row {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:all .2s;
+}
+.day-row:hover { border-color:var(--border-light);transform:translateX(4px); }
+.day-row.done { border-color:rgba(90,158,111,0.3); }
+.day-row.today { box-shadow:0 0 0 2px var(--accent); }
+.day-row-left { display:flex;align-items:center;gap:12px;flex:1;min-width:0; }
+.day-row-num {
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--text-dim);
+  flex-shrink:0;
+}
+.day-row-num.health { color:var(--health);border-color:var(--health); }
+.day-row-num.wealth { color:var(--wealth);border-color:var(--wealth); }
+.day-row-num.relationships { color:var(--relationships);border-color:var(--relationships); }
+.day-row-num.integration { color:var(--spiritual);border-color:var(--spiritual); }
+.day-row-info { flex:1;min-width:0; }
+.day-row-topic { font-size:15px;font-weight:600;color:var(--text); }
+.day-row-scripture { font-size:12px;color:var(--accent);margin-top:2px; }
+.day-row-excerpt { font-size:12px;color:var(--text-dim);margin-top:3px;line-height:1.5; }
+.day-row-right { flex-shrink:0; }
+.day-row-status { font-size:18px;color:var(--text-dim); }
+.day-row-status.done { color:var(--success); }
+
+/* Page subtitle */
+.page-subtitle {
+  font-size:13px;color:var(--text-muted);
+  margin-bottom:16px;text-align:center;
+}
