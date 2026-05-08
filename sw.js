@@ -1,39 +1,66 @@
 const CACHE_NAME = 'flourish-v1';
-const PRECACHE_ASSETS = [
+const DATA_CACHE = 'flourish-data-v1';
+const SHELL = [
   './',
   './index.html',
+  './404.html',
   './styles.css',
   './app.js',
-  './manifest.json',
-  './data/curriculum-enriched.json'
+  './manifest.json'
 ];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
+self.addEventListener('install', function(e) {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(function(c) {
+      return c.addAll(SHELL);
+    })
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    )
+self.addEventListener('activate', function(e) {
+  e.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE_NAME && k !== DATA_CACHE; })
+          .map(function(k) { return caches.delete(k); })
+      );
+    })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
+self.addEventListener('fetch', function(e) {
+  var url = new URL(e.request.url);
+  var isData = url.pathname.indexOf('/data/') !== -1;
+
+  if (isData) {
+    e.respondWith(
+      fetch(e.request).then(function(res) {
+        var clone = res.clone();
+        caches.open(DATA_CACHE).then(function(c) {
+          c.put(e.request, clone).catch(function(){});
+        });
+        return res;
+      }).catch(function() {
+        return caches.match(e.request).then(function(cached) {
+          if (cached) return cached;
+          return new Response('{error:"offline"}', { status: 503 });
+        });
+      })
+    );
+    return;
+  }
+
+  e.respondWith(
+    caches.match(e.request).then(function(cached) {
       if (cached) return cached;
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
+      return fetch(e.request).then(function(res) {
+        var clone = res.clone();
+        caches.open(CACHE_NAME).then(function(c) {
+          c.put(e.request, clone);
+        });
+        return res;
       });
     })
   );
