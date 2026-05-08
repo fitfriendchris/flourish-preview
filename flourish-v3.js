@@ -127,9 +127,8 @@
   // ════════════════════════════════════════════
   // NAVIGATION
   // ════════════════════════════════════════════
-  function showPage() {
-    // Read directly from location.hash to support query params (#pillars?p=Health&w=3)
-    const raw = location.hash.replace('#','') || 'devotional';
+  function showPage(override) {
+    const raw = override || location.hash.replace('#','') || 'devotional';
     const page = raw.split('?')[0];
 
     if (page === 'devotional' && !state.loaded) { renderLoading(); return; }
