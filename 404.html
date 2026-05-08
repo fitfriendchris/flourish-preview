@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -7,30 +7,57 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="styles.css">
   <meta name="theme-color" content="#1a3c1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23142'/%3E%3Ctext x='50' y='62' text-anchor='middle' font-size='55'%3E🌱%3C/text%3E%3C/svg%3E">
 </head>
 <body>
   <div id="app">
+    <!-- HEADER -->
     <header class="app-header">
       <div class="brand">
-        <span class="logo">🌿</span>
+        <span class="logo">🌱</span>
         <span class="title">Flourish</span>
       </div>
-      <button id="gender-toggle" class="btn-toggle" aria-label="Toggle gender track">
-        <span class="g-label">Men</span>
-        <span class="g-switch"></span>
-        <span class="g-label dim">Women</span>
-      </button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <button id="gender-toggle" aria-label="Toggle gender track">
+          <span class="g-label label-men">Man</span>
+          <span class="g-track"></span>
+          <span class="g-label dim label-women">Woman</span>
+        </button>
+      </div>
     </header>
 
-    <main id="main" class="main-content"></main>
+    <!-- MAIN CONTENT -->
+    <main id="main"></main>
 
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" data-page="devotional" aria-label="Devotional">📖</button>
-      <button class="nav-btn" data-page="progress" aria-label="Progress">📊</button>
-      <button class="nav-btn" data-page="churches" aria-label="Churches">⛪</button>
-      <button class="nav-btn" data-page="events" aria-label="Events">📅</button>
-      <button class="nav-btn" data-page="store" aria-label="Store">🛒</button>
-      <button class="nav-btn" data-page="profile" aria-label="Profile">👤</button>
+      <button class="nav-btn active" data-page="devotional" aria-label="Devotional">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">Devotion</span>
+      </button>
+      <button class="nav-btn" data-page="progress" aria-label="Progress">
+        <span class="nav-icon">🌿</span>
+        <span class="nav-label">Growth</span>
+      </button>
+      <button class="nav-btn" data-page="churches" aria-label="Churches">
+        <span class="nav-icon">⛪</span>
+        <span class="nav-label">Church</span>
+      </button>
+      <button class="nav-btn" data-page="events" aria-label="Events">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Events</span>
+      </button>
+      <button class="nav-btn" data-page="store" aria-label="Store">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-label">Equip</span>
+      </button>
+      <button class="nav-btn" data-page="profile" aria-label="Profile">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profile</span>
+      </button>
     </nav>
   </div>
 
