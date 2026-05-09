@@ -60,7 +60,7 @@
     try {
       const ctrl = new AbortController();
       setTimeout(() => ctrl.abort(), 30_000);
-      const r = await fetch('data/curriculum-enriched.json', { signal: ctrl.signal });
+      const r = await fetch('data/data-v8.json?v=8', { signal: ctrl.signal });
       if (!r.ok) throw new Error('Failed to load curriculum');
       state.curriculum = await r.json();
       state.loaded = true;
