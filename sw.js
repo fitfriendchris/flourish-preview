@@ -1,11 +1,11 @@
-const CACHE_NAME = 'flourish-v8';
-const DATA_CACHE = 'flourish-data-v8';
+const CACHE_NAME = 'flourish-v9';
+const DATA_CACHE = 'flourish-data-v9';
 const SHELL = [
   './',
   './index.html',
   './404.html',
-  './flourish-v8.css',
-  './flourish-v8.js',
+  './flourish-v9.css',
+  './flourish-v9.js',
   './manifest.json'
 ];
 
